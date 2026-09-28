@@ -66,6 +66,14 @@ the analyses presented in the paper
    downloads the [Wilson raw-data release][Wilson-data],
    and requests only the Wilson JSON targets needed by this analysis.
 
+4. If you are running on Tursa or another HPC facility where the production job
+   must run without Internet access, prepare the Conda environments on a login
+   node with Internet access:
+
+   ``` shellsession
+   snakemake --cores 1 --use-conda --conda-create-envs-only
+   ```
+
 ## Running the workflow
 
 The workflow is run using Snakemake:
@@ -102,18 +110,16 @@ There are two possible ways to run the workflow.
    Wilson analysis-preparation step uses the cores provided to the main
    Snakemake command.
 
-   Snakemake will automatically download and install all required Python and
-   Julia packages. If you are running on Tursa or another HPC facility where the
-   production job must run without Internet access, prepare these dependencies
-   on a login node with Internet access:
+   If the production job must run without Internet access, the Conda
+   environments should already have been prepared as described in Setup step 4.
+   Then, prepare the upstream Wilson workflow inputs and Julia environment on
+   a login node with Internet access:
 
    ``` shellsession
-   snakemake --cores 1 --sdm conda --conda-create-envs-only
    snakemake --cores 1 --use-conda external_data/wilson_upstream/fundamental_Wilson_fermion_analysis_2026/intermediary_data/julia_ready
    ```
 
-   The first command creates the Snakemake-managed Conda environments. The
-   second command triggers `prepare_wilson_upstream_inputs`, which downloads and
+   This command triggers `prepare_wilson_upstream_inputs`, which downloads and
    extracts the upstream Wilson workflow archive, metadata archive, and Wilson
    raw-data archive (`external_data/wilson_upstream/raw_data.tar`), and then
    triggers `prepare_wilson_julia_environment` to instantiate the Julia
