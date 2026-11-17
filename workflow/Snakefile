@@ -255,6 +255,7 @@ rule all:
         "assets/plots/bulk_phase/mobius_tuned_plaq_vs_mass.pdf",
         "assets/plots/bulk_phase/mobius_tuned_plaq_history.pdf",
         "assets/plots/bulk_phase/plaq_mass_beta_shamir.pdf",
+        "assets/plots/bulk_phase/shamir_plaq_vs_mass_volume_comparison.pdf",
         expand(
             "assets/plots/spectrum/{observable}_mps_plot_bootstrap.pdf",
             observable=["mv","fps"],
@@ -592,6 +593,40 @@ rule bulk_phase:
             "--tuned_masses {output.tuned_masses} "
             "--tuned_history {output.tuned_history} "
             "--shamir_summary {output.shamir_summary}"
+        )
+
+
+rule bulk_phase_shamir_volume_comparison:
+    input:
+        ensembles_csv="metadata/ensembles.csv",
+        # Five shared betas: 50 bulk points and 15 large-volume points.
+        plaq_avg=lambda wc: [
+            (
+                f"intermediary_data/NF{int(row.NF)}/Nt{int(row.Nt)}/Ns{int(row.Ns)}/"
+                f"Ls{int(row.Ls)}/B{float(row.beta)}/M{float(row.mass)}/"
+                f"mpv{float(row.mpv)}/alpha{float(row.alpha)}/"
+                f"a5{float(row.a5)}/M5{float(row.M5)}/hmc/log_hmc_extract.json"
+            )
+            for row in ENSEMBLES_DF.query(
+                "NF == 2 and Ls == 8 and alpha == 1.0 and a5 == 1.0 "
+                "and M5 == 1.8 and mpv == 1.0 "
+                "and beta in [6.8, 7.0, 7.2, 7.4, 7.6] "
+                "and ((Nt == 8 and Ns == 8 and use_in_bulkphase_Shamir == True) "
+                "or (Nt == 32 and Ns == 16 and mass in [0.02, 0.06, 0.10]))"
+            ).itertuples()
+        ],
+    output:
+        comparison="assets/plots/bulk_phase/shamir_plaq_vs_mass_volume_comparison.pdf",
+    conda:
+        "envs/analysis.yml"
+    shell:
+        (
+            "python src/bulk_phase/shamir_volume_comparison.py "
+            "--ensembles_csv {input.ensembles_csv:q} "
+            "--plaq_avg {input.plaq_avg:q} "
+            "--label {config[label]} "
+            "--plot_styles {config[plot_styles]:q} "
+            "--output {output.comparison:q}"
         )
 
 
