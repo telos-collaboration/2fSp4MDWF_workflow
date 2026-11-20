@@ -85,7 +85,7 @@ def plot_comparison(points, output, show_legend):
             Line2D([], [], color="black", marker="o", fillstyle="full", ls="-",
                    label=r"$V=32\times16^3$"),
             Line2D([], [], color="black", marker="s", markerfacecolor="none", ls=":",
-                   label=r"$V=8^4$ (bulk scan)"),
+                   label=r"$V=8^4$"),
         ], loc="lower left", bbox_to_anchor=(1.02, 0), fontsize="small")
     Path(output).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output, dpi=300, bbox_inches="tight")
